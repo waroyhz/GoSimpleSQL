@@ -21,8 +21,8 @@ sql查询的例子
     rows, err := db.Query(sSql.GenerateCommand(),sSql.GetArgs()...)
     
 
-# Demo beego Orm
-结合beego的rom使用的例子
+# Demo beego orm
+结合beego的orm使用的例子
         
     func (*daoUserEntity)SelectByUserAndPassword(username, password string) *mhj_models.UserEntity {
         sql := NewCommand(TABLE_UserEntity).
