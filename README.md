@@ -2,7 +2,7 @@
 这是一个简单的sql生成器，可以避免手写sql字符串，2016年年底开始编写，团队内部使用，已经用于生产环境。
 
 
-#Demo
+# Demo
 sql查询的例子
 
 	sSql := NewCommand(TABLE_UserEntity).
@@ -21,7 +21,7 @@ sql查询的例子
     rows, err := db.Query(sSql.GenerateCommand(),sSql.GetArgs()...)
     
 
-#Demo beego Orm
+# Demo beego Orm
 结合beego的rom使用的例子
         
     func (*daoUserEntity)SelectByUserAndPassword(username, password string) *mhj_models.UserEntity {
