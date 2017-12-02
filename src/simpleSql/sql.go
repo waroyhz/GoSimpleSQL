@@ -1,4 +1,4 @@
-package sSql
+package sql
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"time"
 	"github.com/alecthomas/log4go"
-	"unicode"
 )
 
 func NewCommand(tablename string) *SQL {
@@ -33,6 +32,16 @@ func (this*SQL)Delete(args ... WhereEQ) *SQL {
 	return this
 }
 
+func (this*SQL)DeleteLike(args ... Like) *SQL {
+	strwhere := []string{}
+	for _, set := range args {
+		strwhere = append(strwhere, fmt.Sprintf("%s like %s", FieldFormat(set.Field), set.Value))
+	}
+	this.where = where + strings.Join(strwhere, AND)
+	this.isdelete = true
+	return this
+}
+
 //用于同一个字段
 func (this *SQL)Deletes() *SQL {
 	this.isdelete = true
@@ -42,7 +51,7 @@ func (this *SQL)Deletes() *SQL {
 func (this*SQL)Update(args ... Set) *SQL {
 	strsets := []string{}
 	for _, set := range args {
-		strsets = append(strsets, fmt.Sprintf("%s=%s", set.Field, set.Value))
+		strsets = append(strsets, fmt.Sprintf("%s=%s", FieldFormat(set.Field), set.Value))
 	}
 	this.query = strings.Join(strsets, ",")
 	this.isupdate = true
@@ -62,9 +71,14 @@ func (this*SQL)Insert(obj interface{}) *SQL {
 		var value interface{}
 		//获取field的name
 		fieldType := objType.Field(i).Type.Kind()   //field的类型
-		fieldName := objType.Field(i).Name             //field的name
-		fieldValue := objValue.FieldByName(fieldName)
-
+		//fieldName := objType.Field(i).Name             //field的name
+		fieldTag :=objType.Field(i).Tag
+		fieldName := fieldTag.Get("field")             //field的name
+		if fieldName==""{
+			fieldName=objType.Field(i).Name
+		}
+		fieldValue := objValue.FieldByName(objType.Field(i).Name)
+		//log4go.Info("fieldName=%s",fieldName)
 		switch fieldType {
 		case reflect.String:
 			if ns, ok := fieldValue.Interface().(sql.NullString); ok {
@@ -121,17 +135,17 @@ func (this*SQL)Insert(obj interface{}) *SQL {
 			} else {
 				value = fieldValue.Int()
 			}
-			if this.intParamAllowZero {
-				if value != nil {
-					strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
-					this.args = append(this.args, value)
-				}
-			} else {
-				if value != nil && !isEmpty(value) {
-					strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
-					this.args = append(this.args, value)
-				}
+			//if this.intParamAllowZero {
+			//	if value != nil {
+			//		strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
+			//		this.args = append(this.args, value)
+			//	}
+			//} else {
+			if value != nil && !isEmpty(fieldName,fieldTag,value.(int64)){
+				strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
+				this.args = append(this.args, value)
 			}
+			//}
 
 		case reflect.Float32, reflect.Float64:
 			if ni, ok := fieldValue.Interface().(sql.NullFloat64); ok {
@@ -148,17 +162,17 @@ func (this*SQL)Insert(obj interface{}) *SQL {
 			} else {
 				value = fieldValue.Float()
 			}
-			if this.intParamAllowZero {
-				if value != nil {
-					strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
-					this.args = append(this.args, value)
-				}
-			} else {
-				if value != nil && !isEmpty(value) {
-					strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
-					this.args = append(this.args, value)
-				}
-			}
+			//if this.intParamAllowZero {
+			//	if value != nil {
+			//		strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
+			//		this.args = append(this.args, value)
+			//	}
+			//} else {
+			//	if value != nil   && !isEmpty(fieldName,fieldTag,value){
+			strsets = append(strsets, FieldFormat(fmt.Sprintf("%s", fieldName)))
+			this.args = append(this.args, value)
+			//}
+			//}
 
 		case reflect.Struct:
 			if objType.Field(i).Type.Name() == "Time" {
@@ -414,9 +428,9 @@ func SelectD(column string) string {
 	}
 }
 
-func Tables(table ...string) string {
+func Tables(tableABC ...string) string {
 	var tablename string = ""
-	for i, t := range table {
+	for i, t := range tableABC {
 		if len(tablename) > 0 {
 			tablename += ","
 		}
@@ -437,20 +451,6 @@ func CascadeTables(table ...string) string {
 }
 
 func FieldFormat(field string) string {
-	upfiled := strings.ToUpper(field);
-	bup := []byte(upfiled)
-	blower := []byte(strings.ToLower(field))
-	bs := []byte(field)
-	newfiled := []byte{}
-	for i := 0; i < len(upfiled); i++ {
-		if i == 0 {
-			newfiled = append(newfiled, bs[i])
-		} else if bup[i] == bs[i] && unicode.IsLetter(rune(bup[i])) {
-			newfiled = append(newfiled, '_', bup[i])
-		} else {
-			newfiled = append(newfiled, blower[i])
-		}
-	}
-	return string(newfiled)
+	return field
 }
 

@@ -1,4 +1,4 @@
-package sSql
+package sql
 
 import (
 	"testing"
@@ -163,11 +163,11 @@ func Test_CascadeTables(t*testing.T){
 	}
 }
 
-func Test_FieldFormat(t*testing.T){
-	if !(FieldFormat("aA1") =="a_A1"){
-		t.Error(t.Name(),FieldFormat("aA1"))
-	}
-	if !(FieldFormat("a1") =="a1"){
-		t.Error(t.Name(),FieldFormat("a1"))
-	}
-}
+//func Test_FieldFormat(t*testing.T){
+//	if !(FieldFormat("aA1") =="a_A1"){
+//		t.Error(t.Name(),FieldFormat("aA1"))
+//	}
+//	if !(FieldFormat("a1") =="a1"){
+//		t.Error(t.Name(),FieldFormat("a1"))
+//	}
+//}
