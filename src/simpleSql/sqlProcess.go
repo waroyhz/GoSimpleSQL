@@ -1,4 +1,4 @@
-package sSql
+package sql
 
 import (
 	"strings"
@@ -22,12 +22,36 @@ func querySelect(args ... string) string {
 	return strings.Join(sql, ",")
 }
 
-func isEmpty(a interface{}) bool {
-	v := reflect.ValueOf(a)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
+func isEmpty(name string,tag reflect.StructTag,a int64) bool {
+	//v := reflect.ValueOf(a)
+	//if v.Kind() == reflect.Ptr {
+	//	v = v.Elem()
+	//}
+
+	//defvalue:=reflect.Zero(v.Type()).Interface()
+	//nv:=v.Interface()
+	ret:= a==0
+
+	nullYES:=tag.Get("null")=="YES"
+	keyMUL:=tag.Get("key")=="MUL"
+
+	if ret && !nullYES {
+		if 0 ==a{
+			if name=="Id"{ //id为0时置为空
+				ret=true
+			}else{
+				ret= false
+			}
+		}
+	}else if keyMUL && nullYES {
+		if 0==a{
+			ret=true
+		}
 	}
-	return v.Interface() == reflect.Zero(v.Type()).Interface()
+	//if ret{
+	//	log4go.Info(name,a,v,reflect.Zero(v.Type()).Interface(),reflect.Zero(v.Type()),ret)
+	//}
+	return ret
 }
 
 func getInsertQuery(cols string) string {
