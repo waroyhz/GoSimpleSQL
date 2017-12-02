@@ -13,51 +13,23 @@ import (
 	"tools/shell"
 )
 
-var tableNames []string = []string{
+/*
+数据库表生成模型的工具
+*/
+
+
+var tableNames = []string{
+	//数据库的表名
 	"user_entity",
-	"mhjdevicebase",
-	"mhjdevicechild",
-	"service_account",
-	"mhjpanelauthorizes",
-	"mhjdeviceauthorize",
-	"mhjdeviceactivation",
-	"userphoneverifications",
-	"mhjsceneauthorizes",
-	"userscenechilds",
-	"mhjpanels",
-	"mhjpanel_scenes",
-	"mhjdevicewifimessages",
-	"log_error",
-	"user_push_message",
-	"userscenes",
-	"vstarcamcameraauthorizes",
-	"vstarcamcamera_scenes",
-	"vstarcamcameras",
-	"ysdevices",
-	"ysdevice_scenes",
-	"ysdevice_authorize",
-	"mhjpannelkeydefinitions",
-	"y_s_token",
-	"mhjdevicevirtualdefine",
-	"mhjdevicechildpanelkeys",
-	"timerevents",
-	"mhjmanufacturers",
-	"mhjproducttypes",
-	"hxtoken",
-	"friend",
-	"mhjdevicecontrol",
-	"mhjcurtaincontrolrecords",
-	"mhjdevicetriggerrecords",
-	"ysdetector",
-	"yslinkagedevice",
-	"timer_infrared",
-	"admin_entity",
-	"mhjinfraredvirtualdefine",
-	"mhjdeviceicon",
+
 }
 
-var childpathModels = "/src/mhj/models"
-var childpathMO = "/src/mhj/models/modelsDefine"
+const (
+	driverName = "mysql"
+	database = "mhj:mhj123@tcp(192.168.5.15:3306)/mhj?charset=utf8"
+	childpathModels = "/src/mhj/models"
+	childpathMO = "/src/mhj/models/modelsDefine"
+)
 var pathMO string
 var pathModels string
 
@@ -93,7 +65,7 @@ func main() {
 		return
 	}
 
-	if db, err := sql.Open("mysql", "mhj:mhj123@tcp(192.168.5.15:3306)/mhj?charset=utf8"); err == nil {
+	if db, err := sql.Open(driverName, database); err == nil {
 		for _, tableName := range tableNames {
 			rows, rowerr := db.Query("show columns from " + tableName)
 			if rowerr == nil {

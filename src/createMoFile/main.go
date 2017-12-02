@@ -13,6 +13,10 @@ import (
 	"tools/shell"
 )
 
+/*
+模型属性生成工具
+ */
+
 type modules struct {
 	//这里引入model
 	//user   mhj_models.UserEntity
